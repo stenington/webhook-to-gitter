@@ -6,7 +6,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
 var routes = require('./routes/index');
-var users = require('./routes/users');
+var service = require('./routes/service');
 
 var app = express();
 
@@ -22,8 +22,25 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use(function(req, res, next) {
+  req.redis = app.get('redis');
+  next();
+});
+
+app.param('service', function(req, res, next, id){
+  req.service = id;
+  req.key = app.get('prefix') + id;
+
+  var oldest = Date.now() - app.get('expiry');
+
+  req.redis.zremrangebyscore([req.key, 0, oldest], function(err, reply) {
+    if (err) next(err);
+    else next();
+  });
+})
+
 app.use('/', routes);
-app.use('/users', users);
+app.use('/:service', service);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
