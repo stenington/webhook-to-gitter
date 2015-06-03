@@ -97,7 +97,9 @@ function onListening() {
 function initDatabase() {
   var u = url.parse(process.env.REDISTOGO_URL || 'redis://localhost:6379/0')
   var opts = {};
-  opts.auth_pass = u.auth || undefined;
+  if (u.auth) {
+    opts.auth_pass = u.auth.split(':')[1];
+  }
 
   redis = require('redis').createClient(u.port, u.hostname, opts);
   app.set('redis', redis);
