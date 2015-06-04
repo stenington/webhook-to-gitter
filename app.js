@@ -5,9 +5,9 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
-var routes = require('./routes/index');
 var service = require('./routes/service');
 
+var gitter = require('./lib/gitter');
 var handlers = require('./lib/handlers/')
 
 var app = express();
@@ -25,25 +25,15 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(function(req, res, next) {
-  req.redis = app.get('redis');
+  req.gitter = gitter(app.get('gitter_webhook'));
   next();
 });
 
 app.param('service', function(req, res, next, id){
   req.service = id;
-  req.key = app.get('prefix') + id;
-
   req.handler = handlers[id] || handlers['default'];
-
-  var oldest = Date.now() - app.get('expiry');
-
-  req.redis.zremrangebyscore([req.key, 0, oldest], function(err, reply) {
-    if (err) next(err);
-    else next();
-  });
-})
-
-app.use('/', routes);
+  next();
+});
 app.use('/:service', service);
 
 // catch 404 and forward to error handler

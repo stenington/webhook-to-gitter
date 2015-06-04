@@ -1,8 +1,0 @@
-extends layout
-
-block content
-  h1= service
-  ul
-    each alert in alerts
-      li
-        pre= JSON.stringify(alert, null, "  ")
