@@ -13,6 +13,7 @@
     "jade": "~1.9.2",
     "morgan": "~1.5.3",
     "redis": "^0.12.1",
+    "require-dir": "^0.3.0",
     "serve-favicon": "~2.2.1"
   },
   "engines": {

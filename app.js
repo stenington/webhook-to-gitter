@@ -8,6 +8,8 @@ var bodyParser = require('body-parser');
 var routes = require('./routes/index');
 var service = require('./routes/service');
 
+var handlers = require('./lib/handlers/')
+
 var app = express();
 
 // view engine setup
@@ -30,6 +32,8 @@ app.use(function(req, res, next) {
 app.param('service', function(req, res, next, id){
   req.service = id;
   req.key = app.get('prefix') + id;
+
+  req.handler = handlers[id] || handlers['default'];
 
   var oldest = Date.now() - app.get('expiry');
 
